@@ -149,7 +149,7 @@ df_full_datas2['player_game_points'] = df_full_datas2['player_game_points'].asty
 
 df_full_datas2['player_season_points'] = df_full_datas2.groupby(
     by=['player']
-)['points'].cumsum() - df_full_datas2['player_game_points']
+)['points'].cumsum() - df_full_datas2['points']
 df_full_datas2['player_season_points'] = df_full_datas2['player_season_points'].astype('int16')
 
 ###
@@ -241,6 +241,16 @@ df_full_datas2['ratio_assist_player'] = round(
 df_full_datas2['ratio_assist_player'] = df_full_datas2['ratio_assist_player'].astype('float16')
 
 df_full_datas2.loc[df_full_datas2['ratio_assist_player'].isna(), 'ratio_assist_player'] = float(0)
+
+###
+# Last Cleaning: We modify elapsed columns by creating intervals instead of float numbers
+###
+df_full_datas2['elapsed'] = df_full_datas2['elapsed'].apply(dl_clean_func.interval_defined)
+
+###
+# Last Cleaning: Categorization of players with multiple positions
+###
+df_full_datas2['Position'] = df_full_datas2['Position'].apply(dl_clean_func.position_defined)
 
 ###
 # Feature: We keep only the following variables
