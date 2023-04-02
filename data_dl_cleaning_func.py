@@ -109,3 +109,32 @@ def area_defined(distance, x, y, type_shot, longShots=27):
             return "Short_Paint_Shot"
         else:
             return "Long_Paint_Shot"
+
+
+# If two positions for one player, we take the first of the two
+def position_defined(position):
+    if position[:2] != 'C-':
+        if len(position) > 2:
+            return position[:2]
+        else:
+            return position
+    else:
+        return 'C'
+
+
+# Determine an interval of time for elapsed float time
+def interval_defined(time_elapsed, interval_def=2):
+
+    borne_inf = int(interval_def * (time_elapsed // interval_def))
+    if borne_inf < 10:
+        borne_inf_str = '0' + str(borne_inf)
+    else:
+        borne_inf_str = str(borne_inf)
+
+    borne_sup = int(borne_inf + interval_def)
+    if borne_sup < 10:
+        borne_sup_str = '0' + str(borne_sup)
+    else:
+        borne_sup_str = str(borne_sup)
+
+    return '%s%s%s%s%s' % ('[', borne_inf_str, '-', borne_sup_str, ']')
