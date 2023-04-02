@@ -12,9 +12,13 @@ matplotlib.use('TkAgg')
 pd.options.mode.chained_assignment = None
 
 ###
-# DL & direct filter of datas (as we only want to study players' shots)
+# INPUT
 ###
 season = '2020-2021'
+
+###
+# DL & direct filter of datas (as we only want to study players' shots)
+###
 df_play = dl_clean_func.import_plays_datas(season=season)
 df_play = df_play[df_play['event_type'] == 'shot']
 
