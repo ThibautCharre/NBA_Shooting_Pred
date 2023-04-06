@@ -86,4 +86,14 @@ class DataCollector:
         )
         plt.show()
 
+    def int_correlation_map(self, drop_variables='result'):
+        df_int_corr = self.df.select_dtypes(include=['int64'])
+        df_int_corr = df_int_corr.drop(drop_variables, axis=1)
+
+        plt.figure(figsize=(15, 8))
+        sns.heatmap(df_int_corr.corr(), annot=True)
+        plt.xticks(rotation=45)
+        plt.show()
+
+
 

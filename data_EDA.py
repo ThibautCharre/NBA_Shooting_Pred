@@ -49,7 +49,7 @@ for i in graph_name:
     )
 
 # FG before taking a shot (%)
-data_collector.var_boxplot(vert_var='Position', horiz_var='FG_player')
+# data_collector.var_boxplot(vert_var='Position', horiz_var='FG_player')
 
 ###
 # 2nd : More detailed views through heatmap to mix xho when and score
@@ -74,4 +74,7 @@ data_collector.pivot_heatmap(vert_var='elapsed', horiz_var='area_shot')
 data_collector.pivot_heatmap(vert_var='elapsed', horiz_var='play_length')
 # le faire par position
 
-#### GENERAL REMARK: do it by position ?????
+###
+# 3rd : Correlation bewteen int variables before modeling
+###
+data_collector.int_correlation_map(drop_variables=['result', 'away_score', 'home_score'])
