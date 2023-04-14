@@ -94,6 +94,3 @@ class DataCollector:
         sns.heatmap(df_int_corr.corr(), annot=True)
         plt.xticks(rotation=45)
         plt.show()
-
-
-
