@@ -6,10 +6,6 @@
 import data_dl_cleaning_func as dl_clean_func
 import numpy as np
 import pandas as pd
-import matplotlib
-matplotlib.use('TkAgg')
-# import matplotlib.pyplot as plt
-pd.options.mode.chained_assignment = None
 
 ###
 # INPUT
