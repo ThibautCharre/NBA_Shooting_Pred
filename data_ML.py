@@ -4,30 +4,21 @@
 # Packages
 ###
 import os
+
+import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+import seaborn as sns
 
 # Cross validation, standardization & matrix confusions
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
-from sklearn.metrics import confusion_matrix, classification_report, ConfusionMatrixDisplay, accuracy_score
+from sklearn.metrics import confusion_matrix, classification_report, accuracy_score
 
 # Random Forest
 from sklearn.ensemble import RandomForestClassifier
 
 # Gradient Boosting
 from xgboost import XGBClassifier
-
-# Scaling
-from sklearn.preprocessing import MinMaxScaler
-
-# Neural network
-from keras.models import Sequential
-from keras.layers import Dense
-
-# MatPlotLib
-import matplotlib
-matplotlib.use('TkAgg')
-import matplotlib.pyplot as plt
 
 ###
 # Packages Options
@@ -64,111 +55,90 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 ###
 # I - Random Forest
 ###
+
+# Random Forest Optimization
+param_grid = {
+    'n_estimators': [50, 100, 200, 500, 1000],
+    'max_depth': np.arange(3, 10),
+    'max_features': ['sqrt', 'log2', None],
+    'min_samples_split': np.arange(2, 7),
+    'criterion': ['gini', 'entropy']
+}
+
 # RF classifier definition
-rfc = RandomForestClassifier(n_jobs=-1, random_state=42)
-rfc.fit(X_train, y_train)
-pred_rfc = rfc.predict(X_test)
+rfc = RandomizedSearchCV(RandomForestClassifier(), param_grid, cv=5, n_jobs=-1, random_state=42)
+search_rfc = rfc.fit(X_train, y_train)
+pred_rfc = search_rfc.best_estimator_.predict(X_test)
 
-# Print precision
-print(f'Accuracy Score: {100*accuracy_score(y_test, pred_rfc):.4f}')
+# Random parameters results
+print('Randomized search grid results are:')
+print("\n The best parameters across ALL searched params:\n", search_rfc.best_params_)
 
-# Report of confusion matrix
-print(classification_report(y_test, pred_rfc))
+# Predictions and results of accuracy and confusion matrix
+accur_rfc = accuracy_score(y_test, pred_rfc)
+print(f'Accuracy Score: {accur_rfc:.2f}')
 
-# Reports of normal confusion matrix
-rf_matrix_conf = confusion_matrix(y_test, pred_rfc)
-rf_matrix_conf_plot = ConfusionMatrixDisplay(confusion_matrix=rf_matrix_conf, display_labels=rfc.classes_)
-rf_matrix_conf_plot.plot()
+# Confusion Matrix and scoring
+conf_mat_rfc = confusion_matrix(y_test, pred_rfc)
+print(conf_mat_rfc)
+
+tn_rfc = conf_mat_rfc[0][0]
+fn_rfc = conf_mat_rfc[0][1]
+fp_rfc = conf_mat_rfc[1][0]
+tp_rfc = conf_mat_rfc[1][1]
+
+precision_rfc = round(tp_rfc / (tp_rfc + fp_rfc), 2)
+recall_rfc = round(tp_rfc / (tp_rfc + fn_rfc), 2)
+f1_rfc = round(2 * tp_rfc / (2 * tp_rfc + fp_rfc + fn_rfc), 2)
 
 ###
 # II - XG Boost
 ###
-# RF classifier definition
-xgc = XGBClassifier()
-xgc.fit(X_train, y_train)
-pred_xgc = xgc.predict(X_test)
+
+# XGC Optimization
+param_grid_xgc = {
+    'n_estimators': [50, 100, 200, 500, 1000],
+    'max_depth': np.arange(3, 10),
+    'learning_rate': [0.1, 0.01, 0.05, 0.001]
+}
+
+# XGC classifier definition
+xgc = RandomizedSearchCV(XGBClassifier(), param_grid_xgc, cv=5, n_jobs=-1, random_state=42)
+search_xgc = xgc.fit(X_train, y_train)
+pred_xgc = search_xgc.best_estimator_.predict(X_test)
+
+# XGB parameters results
+print('XGB search grid results are:')
+print("\n The best parameters across ALL searched params:\n", search_xgc.best_params_)
 
 # Print precision
-print(f'Accuracy Score: {100*accuracy_score(y_test, pred_xgc):.4f}')
+accur_xgc = accuracy_score(y_test, pred_xgc)
+print(f'Accuracy Score: {accur_xgc:.2f}')
 
-# Report of confusion matrix
-print(classification_report(y_test, pred_xgc))
+# Confusion Matrix and scores
+conf_mat_xgc = confusion_matrix(y_test, pred_xgc)
+print(conf_mat_xgc)
 
-# Reports of normal confusion matrix
-xg_matrix_conf = confusion_matrix(y_test, pred_xgc)
-xg_matrix_conf_plot = ConfusionMatrixDisplay(confusion_matrix=xg_matrix_conf, display_labels=xgc.classes_)
-xg_matrix_conf_plot.plot()
+tn_xgc = conf_mat_xgc[0][0]
+fn_xgc = conf_mat_xgc[0][1]
+fp_xgc = conf_mat_xgc[1][0]
+tp_xgc = conf_mat_xgc[1][1]
 
-
-# Random Forest & XG Boosting Optimization
-# param_grid = {
-#     'n_estimators': [50, 100, 200, 500, 1000],
-#     'max_depth': np.arange(3, 10),
-#     'max_features': ['sqrt', 'log2', None],
-#     'max_samples': np.linspace(0.5, 1.0, 6)
-# }
-# rfc2 = RandomizedSearchCV(RandomForestClassifier(n_jobs=-1), param_grid, cv=5, random_state=42, verbose=1)
-# rfc2.fit(X_train, y_train)
-#
-# # Launch of optimized Random Forest
-# rfc_optim = RandomForestClassifier(n_jobs=-1,
-#                                    n_estimators=rfc2.best_params_['n_estimators'],
-#                                    max_samples=rfc2.best_params_['max_samples'],
-#                                    max_features=rfc2.best_params_['max_features'],
-#                                    max_depth=rfc2.best_params_['max_depth'],
-#                                    random_state=42
-#                                    )
-# rfc_optim.fit(X_train, y_train)
-# pred_rfc_optim = rfc_optim.predict(X_test)
-
-# Reports of optimal confusion matrix
-# rf_optim_matrix_conf = confusion_matrix(y_test, pred_rfc_optim)
-# rf_optim_matrix_conf_plot = ConfusionMatrixDisplay(confusion_matrix=rf_optim_matrix_conf,
-# display_labels=rfc_optim.classes_)
-# rf_optim_matrix_conf_plot.plot()
+precision_xgc = round(tp_xgc / (tp_xgc + fp_xgc), 2)
+recall_xgc = round(tp_xgc / (tp_xgc + fn_xgc), 2)
+f1_xgc = round(2 * tp_xgc / (2 * tp_xgc + fp_xgc + fn_xgc), 2)
 
 ###
-# III - Bonus : Neural Network (disgusting results)
+# III - Results comparison
 ###
+df_result = pd.DataFrame({'Model': ['RF', 'RF', 'RF', 'RF', 'XGB', 'XGB', 'XGB', 'XGB'],
+                          'Score': ['Accuracy', 'Precision', 'Recall', 'F1', 'Accuracy','Precision', 'Recall', 'F1'],
+                          'Result': [accur_rfc, precision_rfc, recall_rfc, f1_rfc, accur_xgc, precision_xgc, recall_xgc, f1_xgc]
+                          })
+
+fig, ax = plt.subplots(figsize=(15, 8))
+sns.barplot(data=df_result, x='Score', y='Result', hue='Model', palette=sns.set_palette('Set1', 2))
+
 ###
-# Scaling of datas using min and max
+# IV - Features selection
 ###
-# df_cleaned_ML_scaled = df_cleaned_ML.copy()
-#
-# scaler = MinMaxScaler()
-# df_cleaned_ML_scaled[['player_team_scorediff', 'play_length',
-#                                     'shot_distance', 'player_season_points',
-#                                     'player_game_points',
-#                                     'shots_player_made', 'shots_player_total',
-#                                     'FG_player', 'player_streak',
-#                                     'assist_player_total', 'ratio_assist_player',
-#                                     'Experience', 'Age']] = \
-#     scaler.fit_transform(df_cleaned_ML_scaled[['player_team_scorediff', 'play_length',
-#                                     'shot_distance', 'player_season_points',
-#                                     'player_game_points',
-#                                     'shots_player_made', 'shots_player_total',
-#                                     'FG_player', 'player_streak',
-#                                     'assist_player_total', 'ratio_assist_player',
-#                                     'Experience', 'Age']])
-#
-# # We train new scaled datas
-# X_scaled = df_cleaned_ML_scaled.drop('result', axis=1)
-# y = df_cleaned_ML_scaled['result']
-# X_train_scaled, X_test_scaled, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
-#
-# # Neural Network creation
-# model = Sequential()
-# model.add(Dense(128, activation='relu', input_dim=X_scaled.shape[1]))
-# model.add(Dense(1, activation='sigmoid'))
-# model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-#
-# # Training and prediction of the network
-# model.fit(X_train_scaled, y_train, validation_data=(X_test_scaled, y_test), epochs=10, batch_size=100)
-# y_predicted_nn = model.predict(X_test) > 0.5
-#
-# # Confusion matrix
-# mat_nn = confusion_matrix(y_test, y_predicted_nn)
-# conf_matrix = ConfusionMatrixDisplay(confusion_matrix=mat_nn)
-# conf_matrix.plot()
-# plt.xlabel('Predicted label')
-# plt.ylabel('Actual label')

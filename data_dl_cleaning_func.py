@@ -22,16 +22,16 @@ def import_plays_datas(season='2020-2021', file_pattern='combined_stats'):
 
 
 # We create a function to dl players datas from a season
-def import_players_datas(season2='2020-2021', file_pattern2='playerSummary'):
+def import_players_datas(season='2020-2021', file_pattern='playerSummary'):
 
     # Season File
-    dir_datas2 = "%s%s%s" % (os.getcwd(), '\\Datas\\', season2)
+    dir_datas = "%s%s%s" % (os.getcwd(), '\\Datas\\', season)
 
     # Season with players_infos into a pd data frame
-    file_data2 = [i for i in os.listdir(dir_datas2) if file_pattern2 in i][0]
-    datas2 = pd.read_csv('%s%s%s' % (dir_datas2, '\\', file_data2), compression='gzip')
+    file_data = [i for i in os.listdir(dir_datas) if file_pattern in i][0]
+    datas = pd.read_csv('%s%s%s' % (dir_datas, '\\', file_data), compression='gzip')
 
-    return datas2
+    return datas
 
 
 # function to write a df serving at EDA into a file
@@ -42,7 +42,6 @@ def export_df_cleaned(df_cleaned, season='2020-2021', file_name='df_shots_cleane
 
     # We create the file
     df_cleaned.to_csv(dir_file, index=False)
-
 
 ######
 # datas cleaning
