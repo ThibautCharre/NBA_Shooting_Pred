@@ -53,6 +53,23 @@ X = df_cleaned_ML.drop('result', axis=1)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 ###
+# Correlation matrice
+###
+corr_df = df_cleaned.select_dtypes(include=['float64', 'int64']).corr()
+
+# Generate a mask for the upper triangle
+mask = np.triu(np.ones_like(corr_df, dtype=bool))
+
+# Generate a custom diverging colormap
+cmap = sns.diverging_palette(230, 20, as_cmap=True)
+
+# Draw the heatmap with the mask and correct aspect ratio
+fig, ax = plt.subplots(figsize=(12, 6))
+sns.heatmap(corr_df, mask=mask, cmap=cmap, square=False, linewidths=1,
+            cbar_kws={'label': 'Correlation'}, annot=False, ax=ax)
+ax.tick_params(axis='x', labelrotation=45)
+
+###
 # I - Random Forest
 ###
 
