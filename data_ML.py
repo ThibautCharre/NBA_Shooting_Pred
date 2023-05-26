@@ -29,6 +29,7 @@ pd.options.mode.chained_assignment = None
 # INPUTS
 ###
 season = '2020-2021'
+optim_mode = False
 
 ###
 # DL of cleaned datas
@@ -83,13 +84,15 @@ param_grid = {
 }
 
 # RF classifier definition
-rfc = RandomizedSearchCV(RandomForestClassifier(), param_grid, cv=5, n_jobs=-1, random_state=42)
-search_rfc = rfc.fit(X_train, y_train)
-pred_rfc = search_rfc.best_estimator_.predict(X_test)
-
-# Random parameters results
-print('Randomized search grid results are:')
-print("\n The best parameters across ALL searched params:\n", search_rfc.best_params_)
+if optim_mode:
+    rfc = RandomizedSearchCV(RandomForestClassifier(), param_grid, cv=5, n_jobs=-1, random_state=42)
+    search_rfc = rfc.fit(X_train, y_train)
+    pred_rfc = search_rfc.best_estimator_.predict(X_test)
+    print("\n The best parameters across ALL searched params:\n", search_rfc.best_params_)
+else:
+    rfc = RandomForestClassifier()
+    rfc.fit(X_train, y_train)
+    pred_rfc = rfc.predict(X_test)
 
 # Predictions and results of accuracy and confusion matrix
 accur_rfc = accuracy_score(y_test, pred_rfc)
@@ -120,13 +123,16 @@ param_grid_xgc = {
 }
 
 # XGC classifier definition
-xgc = RandomizedSearchCV(XGBClassifier(), param_grid_xgc, cv=5, n_jobs=-1, random_state=42)
-search_xgc = xgc.fit(X_train, y_train)
-pred_xgc = search_xgc.best_estimator_.predict(X_test)
+if optim_mode:
+    xgc = RandomizedSearchCV(XGBClassifier(), param_grid_xgc, cv=5, n_jobs=-1, random_state=42)
+    search_xgc = xgc.fit(X_train, y_train)
+    pred_xgc = search_xgc.best_estimator_.predict(X_test)
+    print("\n The best parameters across ALL searched params:\n", search_xgc.best_params_)
 
-# XGB parameters results
-print('XGB search grid results are:')
-print("\n The best parameters across ALL searched params:\n", search_xgc.best_params_)
+else:
+    xgc = XGBClassifier()
+    xgc.fit(X_train, y_train)
+    pred_xgc = xgc.predict(X_test)
 
 # Print precision
 accur_xgc = accuracy_score(y_test, pred_xgc)
@@ -155,7 +161,3 @@ df_result = pd.DataFrame({'Model': ['RF', 'RF', 'RF', 'RF', 'XGB', 'XGB', 'XGB',
 
 fig, ax = plt.subplots(figsize=(15, 8))
 sns.barplot(data=df_result, x='Score', y='Result', hue='Model', palette=sns.set_palette('Set1', 2))
-
-###
-# IV - Features selection
-###
